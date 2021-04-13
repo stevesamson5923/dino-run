@@ -56,4 +56,34 @@ dead_dino_a =[pygame.transform.scale(dead_dino[0], (WIDTH_HERO, HEIGHT_HERO)), p
               pygame.transform.scale(dead_dino[3], (WIDTH_HERO, HEIGHT_HERO)), pygame.transform.scale(dead_dino[4], (WIDTH_HERO, HEIGHT_HERO)), pygame.transform.scale(dead_dino[5], (WIDTH_HERO, HEIGHT_HERO)),
               pygame.transform.scale(dead_dino[6], (WIDTH_HERO, HEIGHT_HERO)), pygame.transform.scale(dead_dino[7], (WIDTH_HERO, HEIGHT_HERO))]
 
+class BG:
+    def __init__(self,x,y,width,height):
+        self.x = x
+        self.y = y 
+        self.bg = pygame.image.load('bg.jpg')
+        self.width = width 
+        self.height = height
+        self.velx = 4
+    def draw(self,win):
+        win.blit(self.bg,(self.x,self.y))
+    def update(self,win):
+        self.x = self.x - self.velx
+        self.draw(win)
+
+bg1_x = 0
+bg1_y = 0
+
+bg1 = BG(bg1_x,bg1_y,1280,690)
+
+run = True
+while run:
+    bg1.update(win)
+    pygame.display.update()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+pygame.quit()
+
+
 
