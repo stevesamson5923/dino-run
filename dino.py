@@ -56,6 +56,35 @@ dead_dino_a =[pygame.transform.scale(dead_dino[0], (WIDTH_HERO, HEIGHT_HERO)), p
               pygame.transform.scale(dead_dino[3], (WIDTH_HERO, HEIGHT_HERO)), pygame.transform.scale(dead_dino[4], (WIDTH_HERO, HEIGHT_HERO)), pygame.transform.scale(dead_dino[5], (WIDTH_HERO, HEIGHT_HERO)),
               pygame.transform.scale(dead_dino[6], (WIDTH_HERO, HEIGHT_HERO)), pygame.transform.scale(dead_dino[7], (WIDTH_HERO, HEIGHT_HERO))]
 
+class Dino:
+    def __init__(self,x,y,width,height):
+        self.x = x 
+        self.y = y
+        self.width = width
+        self.height = height
+        self.velx = 0
+        self.vely = 0
+        self.state = 0 #0 - idle, 1-walk, 2-  Run, 3-Jump, 4- Dead
+        self.prev_state = False
+        self.hit = False
+        self.score = 0
+        self.count = 0
+    def draw(self,win):
+        if self.state == 0 : # Idle
+            win.blit(idle_dino_a[self.count],(self.x,self.y))
+        elif self.state == 1:    #walking
+            win.blit(walking_dino_a[self.count],(self.x,self.y))
+        elif self.state == 2:
+            win.blit(run_dino_a[self.count],(self.x,self.y))
+        elif self.state == 3:
+            win.blit(jump_dino_a[self.count],(self.x,self.y))
+        elif self.state == 4:
+            win.blit(dead_dino_a[self.count],(self.x,self.y))
+        else:
+            pass
+    def update(self,win):
+        self.draw(win)
+
 class BG:
     def __init__(self,x,y,width,height):
         self.x = x
@@ -72,12 +101,21 @@ class BG:
 
 bg1_x = 0
 bg1_y = 0
+bg2_x = 1281
+bg2_y = 0
 
 bg1 = BG(bg1_x,bg1_y,1280,690)
+bg2 = BG(bg2_x,bg2_y,1280,690)
 
 run = True
 while run:
+    if bg1.x <= -1280:
+        bg1.x = bg2.x + 1280
+    if bg2.x <= -1280:
+        bg2.x = bg1.x + 1280
+
     bg1.update(win)
+    bg2.update(win)
     pygame.display.update()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
