@@ -84,12 +84,25 @@ class Dino:
             pass
     def update(self,win):
         self.draw(win)
-
+        self.count = self.count + 1
+        if self.state == 2:
+            if self.count == 8:
+                self.count = 0
+        elif self.state == 3:
+            if self.count == 11:
+                self.count = 0
+        elif self.state == 4:
+            if self.count == 8:
+                self.count = 7
+        else:
+            if self.count == 10:
+                self.count = 0
+        
 class BG:
     def __init__(self,x,y,width,height):
         self.x = x
         self.y = y 
-        self.bg = pygame.image.load('bg.jpg')
+        self.bg = pygame.transform.scale(pygame.image.load('bg.jpg'),(1280,690))
         self.width = width 
         self.height = height
         self.velx = 4
@@ -106,6 +119,7 @@ bg2_y = 0
 
 bg1 = BG(bg1_x,bg1_y,1280,690)
 bg2 = BG(bg2_x,bg2_y,1280,690)
+dino_char = Dino(200,270,WIDTH_HERO,HEIGHT_HERO)
 
 run = True
 while run:
@@ -116,11 +130,39 @@ while run:
 
     bg1.update(win)
     bg2.update(win)
+    dino_char.update(win)
+
     pygame.display.update()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_w:
+                dino_char.state = 1  #walking
+                dino_char.count = 0
+                bg1.velx = 2
+                bg2.velx = 2
+            elif event.key == pygame.K_r: #running
+                dino_char.state = 2
+                dino_char.count = 0
+                bg1.velx = 7
+                bg2.velx = 7
+                dino_char.prev_state = dino_char.state
+            elif event.key == pygame.K_s:  #Jumping
+                dino_char.prev_state = dino_char.state
+                dino_char.state = 3
+                dino_char.count = 0
+            elif event.key == pygame.K_l: #restart
+                dino_char.x = 200
+                dino_char.y = 270
+                dino_char.score = 0
+                dino_char.hit = False
+                bg1_x = 0
+                bg1_y = 0
+                bg2_x = 1281
+                bg2_y = 0
+                dino_char.state = 0 #idle
+                dino_char.prev_state = 0
 pygame.quit()
 
 
