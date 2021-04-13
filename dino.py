@@ -1,4 +1,5 @@
 import pygame
+import random
 pygame.init()
 WIN_WIDTH = 1280
 WIN_HEIGHT = 690
@@ -112,6 +113,20 @@ class BG:
         self.x = self.x - self.velx
         self.draw(win)
 
+class Props:
+    def __init__(self,x,y,width,height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.bg = pygame.transform.scale(pygame.image.load('cactus.png'),(self.width,self.height))
+        self.jumped = False
+        self.velx = 9
+    def draw(self,win):
+        win.blit(self.bg,(self.x,self.y))
+    def update(self,win):
+        self.x = self.x - self.velx
+        self.draw(win)
 bg1_x = 0
 bg1_y = 0
 bg2_x = 1281
@@ -120,9 +135,13 @@ bg2_y = 0
 bg1 = BG(bg1_x,bg1_y,1280,690)
 bg2 = BG(bg2_x,bg2_y,1280,690)
 dino_char = Dino(200,270,WIDTH_HERO,HEIGHT_HERO)
+cactus = Props(1000,390,50,60)
+cactus_list = []
+cactus_list.insert(0,cactus)
 
 run = True
-while run:
+
+def redrawwindow():
     if bg1.x <= -1280:
         bg1.x = bg2.x + 1280
     if bg2.x <= -1280:
@@ -132,7 +151,21 @@ while run:
     bg2.update(win)
     dino_char.update(win)
 
+    if len(cactus_list) < 3:
+        prop_dist = random.randint(400,600)
+        cactus_new = Props(cactus_list[len(cactus_list)-1].x+prop_dist, 390,50,60)
+        cactus_list.insert(len(cactus_list),cactus_new)
+
+    for c in cactus_list:
+        if c.x >= 0:                
+            c.update(win)
+        else:
+            cactus_list.remove(c)
+            
     pygame.display.update()
+
+while run:
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -163,6 +196,8 @@ while run:
                 bg2_y = 0
                 dino_char.state = 0 #idle
                 dino_char.prev_state = 0
+
+    redrawwindow()
 pygame.quit()
 
 
