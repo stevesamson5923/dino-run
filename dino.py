@@ -1,5 +1,6 @@
 import pygame
 import random
+import constants as cn
 pygame.init()
 WIN_WIDTH = 1280
 WIN_HEIGHT = 690
@@ -7,7 +8,7 @@ WIN_HEIGHT = 690
 win = pygame.display.set_mode((WIN_WIDTH,WIN_HEIGHT))
 pygame.display.set_caption('My second Game - Dinos')
 
-font = pygame.font.SysFont('Comic Sans MS',30,True)
+font = pygame.font.SysFont('Comic Sans MS',60,True)
 
 WIDTH_HERO = 100
 HEIGHT_HERO = 200
@@ -137,17 +138,22 @@ class Props:
         self.bg = pygame.transform.scale(pygame.image.load('cactus.png'),(self.width,self.height))
         self.border = pygame.Rect(self.x+30,self.y,self.width,self.height)
         self.jumped = False
-        self.velx = 9
+        self.velx = cn.getspeed()
     def draw(self,win):
         win.blit(self.bg,(self.x,self.y))
     def update(self,win,dino_char):
         if not dino_char.collision:
-            self.x = self.x - self.velx
+            self.x = self.x - cn.getspeed()
             self.border = pygame.Rect(self.x+30,self.y,self.width-10,self.height)
             if self.border.colliderect(dino_char.border):
                 dino_char.collision = True
                 dino_char.state = 4
                 dino_char.count = 0
+            elif dino_char.x +dino_char.width>=self.x-15 and dino_char.x + dino_char.width<=self.x:
+                self.jumped = False
+            elif dino_char.x >= self.x+self.width and dino_char.x <=self.x+self.width+20 and not self.jumped:
+                dino_char.score = dino_char.score + 1
+                self.jumped = True
         self.draw(win)
 bg1_x = 0
 bg1_y = 0
@@ -183,7 +189,10 @@ def redrawwindow():
             c.update(win,dino_char)
         else:
             cactus_list.remove(c)
-            
+
+    count = 'Score: '+str(dino_char.score)
+    textsurface1 = font.render(count,False,(219,214,213))
+    win.blit(textsurface1,(WIN_WIDTH/2-70,10))       
     pygame.display.update()
 
 space = False
@@ -196,13 +205,15 @@ while run:
             if event.key == pygame.K_w:
                 dino_char.state = 1  #walking
                 dino_char.count = 0
-                bg1.velx = 2
-                bg2.velx = 2
+                bg1.velx = 4
+                bg2.velx = 4
+                cn.setspeed(7)
             elif event.key == pygame.K_r: #running
                 dino_char.state = 2
                 dino_char.count = 0
-                bg1.velx = 7
-                bg2.velx = 7
+                bg1.velx = 8
+                bg2.velx = 8
+                cn.setspeed(12)
                 dino_char.prev_state = dino_char.state
             elif event.key == pygame.K_s:  #Jumping
                 dino_char.prev_state = dino_char.state
@@ -227,7 +238,7 @@ while run:
                 cactus.width = 50
                 cactus.height = 60
                 cactus.jumped = False
-                cactus.velx = 5
+                cactus.velx = 7
                 cactus_list.insert(0,cactus)
                 space = False
             elif event.key == pygame.K_SPACE:
