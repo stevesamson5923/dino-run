@@ -63,11 +63,12 @@ class Dino:
         self.y = y
         self.width = width
         self.height = height
+        self.border = pygame.Rect(self.x+20,self.y,self.width-80,self.height-50)
         self.velx = 0
         self.vely = 0
         self.state = 0 #0 - idle, 1-walk, 2-  Run, 3-Jump, 4- Dead
         self.prev_state = False
-        self.hit = False
+        self.collision = False
         self.score = 0
         self.count = 0
     def draw(self,win):
@@ -86,16 +87,29 @@ class Dino:
     def update(self,win):
         self.draw(win)
         self.count = self.count + 1
-        if self.state == 2:
+        self.border = pygame.Rect(self.x+20,self.y,self.width-80,self.height-50)
+        if self.state == 2:  #RUN
             if self.count == 8:
                 self.count = 0
-        elif self.state == 3:
-            if self.count == 11:
+        elif self.state == 3:  #JUMP
+
+            if self.y==270:
+                self.vely = -20
+            elif self.y == 150:
+                self.vely = 10
+
+            self.y = self.y + self.vely
+            if self.y == 270 and self.vely == 10:
+                self.state = self.prev_state
                 self.count = 0
-        elif self.state == 4:
+                return
+
+            if self.count == 12:
+                self.count = 0
+        elif self.state == 4:  #DEAD
             if self.count == 8:
                 self.count = 7
-        else:
+        else:#IDle, WALK
             if self.count == 10:
                 self.count = 0
         
@@ -110,7 +124,8 @@ class BG:
     def draw(self,win):
         win.blit(self.bg,(self.x,self.y))
     def update(self,win):
-        self.x = self.x - self.velx
+        if not dino_char.collision:
+            self.x = self.x - self.velx
         self.draw(win)
 
 class Props:
@@ -120,12 +135,19 @@ class Props:
         self.width = width
         self.height = height
         self.bg = pygame.transform.scale(pygame.image.load('cactus.png'),(self.width,self.height))
+        self.border = pygame.Rect(self.x+30,self.y,self.width,self.height)
         self.jumped = False
         self.velx = 9
     def draw(self,win):
         win.blit(self.bg,(self.x,self.y))
-    def update(self,win):
-        self.x = self.x - self.velx
+    def update(self,win,dino_char):
+        if not dino_char.collision:
+            self.x = self.x - self.velx
+            self.border = pygame.Rect(self.x+30,self.y,self.width-10,self.height)
+            if self.border.colliderect(dino_char.border):
+                dino_char.collision = True
+                dino_char.state = 4
+                dino_char.count = 0
         self.draw(win)
 bg1_x = 0
 bg1_y = 0
@@ -158,12 +180,13 @@ def redrawwindow():
 
     for c in cactus_list:
         if c.x >= 0:                
-            c.update(win)
+            c.update(win,dino_char)
         else:
             cactus_list.remove(c)
             
     pygame.display.update()
 
+space = False
 while run:
     
     for event in pygame.event.get():
@@ -196,9 +219,27 @@ while run:
                 bg2_y = 0
                 dino_char.state = 0 #idle
                 dino_char.prev_state = 0
-
-    redrawwindow()
+                dino_char.count = 0
+                dino_char.collision = False
+                cactus_list.clear()
+                cactus.x = 1000
+                cactus.y = 390
+                cactus.width = 50
+                cactus.height = 60
+                cactus.jumped = False
+                cactus.velx = 5
+                cactus_list.insert(0,cactus)
+                space = False
+            elif event.key == pygame.K_SPACE:
+                space = not space
+                dino_char.state = dino_char.prev_state or 1
+    if space:
+        redrawwindow()
+    else:
+        bg1.draw(win)
+        bg2.draw(win)
+        dino_char.draw(win)
+        for c in cactus_list:
+            c.draw(win)
+        pygame.display.update()
 pygame.quit()
-
-
-
